@@ -71,5 +71,6 @@ private void sendNotification(String msg) {
             .setContentText(msg);
 
             mBuilder.setContentIntent(contentIntent);
+            mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
     }
 }
