@@ -104,7 +104,62 @@ public class LaseordningActivity extends MainActivity{
             Log.i(TAG, "Registration not found");
             return "";
         }
+
+        int registeredVersion = prefs .getInt(PROPERTY_APP_VERSION, Integer .MIN_VALUE);
+        int currentVersion = getAppVersion(context);
+        if (registeredVersion != currentVersion) {
+            Log.i(TAG, "App version changed");
+            return"";
+        }
+
+       return registrationId;
     }
+
+    private void registerInBackground(){
+        new AsyncTask<Void, Void, String>() {
+            @Override
+            protected String doInBackground(Void... params){
+                String msg = "";
+                try {
+                    if (gcm == null) {
+                        gcm = GoogleCloudMessaging.getInstance(context);
+                    }
+                    regrid = gcm.register(SENDER_ID);
+                    msg ="Device registered, registration ID=" + regrid;
+
+                    sendRegistrationIdToBackend();
+
+                    storeRegistrationId(context, regrid);
+
+                    } catch (IOException ex) {
+                    msg = "Error:" + ex.getMessage();
+                }
+                return msg;
+            }
+
+            @Override
+            protected void onPostExecute(String msg) {
+                mDisplay.append(msg + "/n");
+            }
+
+
+        } .execute(null, null, null);
+
+    }
+
+    public void onClick(final View view){
+        if (view== findViewById(R.id.send)){
+            new AsyncTask<Void, Void, String>(){
+                @Override
+                protected String doInBackGround(Void... params){
+                    String msg ="";
+                try {
+                    Bundle data = new Bundle();
+                }
+            }
+        }
+    }
+
 
 
 }
