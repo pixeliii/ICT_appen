@@ -50,7 +50,7 @@ public class LaseordningActivity extends MainActivity{
 
         context = getApplicationContext();
 
-        if (checkPlayServices)) {
+        if (checkPlayServices) {
             gcm = GoogleCloudMessaging.getInstance(this);
             regrid = getRegistrationId(context);
 
@@ -58,6 +58,51 @@ public class LaseordningActivity extends MainActivity{
                 registerInBackground();
             }
 
+        } else {
+            Log.i(TAG, "No valid Google Play Services APK found.");
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super .onResume();
+        checkPlayServices();
+    }
+
+    private boolean checkPlayServices() {
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)){
+                GooglePlayServicesUtil.getErrorDialog(resultCode, this,
+                        PLAY_SERVICES_RESOLUTION_REQUEST).show();
+            } else {
+                Log.i(TAG, "This device is not supported.");
+                finish();
+            }
+            return false;
+
+
+        }
+        return true;
+
+    }
+
+    private void storeRegistrationId(Context context, String redId) {
+        final SharedPreferences prefs = getGcmPreferences(context);
+        int appVersion = getAppVersion(context);
+        Log.i(TAG, "Saving regId on app version" + appVersion);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(PROPERTY_REG_ID, regId);
+        editor.putInt(PROPERTY_APP_VERSION, appVersion);
+        editor.commit();
+    }
+
+    private String getRegistrationId(Context context) {
+        final SharedPreferences prefs = getGcmPreferences(context);
+        String registrationId = prefs.getString(PROPERTY_REG_ID, "");
+        if (registrationId.isEmpty()) {
+            Log.i(TAG, "Registration not found");
+            return "";
         }
     }
 
